@@ -313,19 +313,19 @@ void dispatchRead(const char *libName, const std::vector< std::vector<bool> > &m
     size_t fileNo=0, readId=0;
     std::string readHead, readSeq, readDir, readQual, rName;
 
-    std::cout << "reading from "<< std::string(libName) << std::endl;
+    std::cerr << "reading from "<< std::string(libName) << std::endl;
 
     std::ifstream libFile(libName);
     while (getline(libFile, rName)) {
         std::ifstream readFile[2];
         readFile[0].open(rName.c_str());
 
-        std::cout << "opening read file 1" << rName << std::endl;
+        std::cerr << "opening read file 1" << rName << std::endl;
 
         if (!opt::se) {
             getline(libFile, rName);
             readFile[1].open(rName.c_str());
-          std::cout << "opening read file 2" << rName << std::endl;
+          std::cerr << "opening read file 2" << rName << std::endl;
         }
         bool readValid=true;
         while(readValid) {
