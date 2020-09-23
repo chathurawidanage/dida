@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stdint.h>
 #include <getopt.h>
+#include <iterator>
 #include "Uncompress.h"
 #ifdef _OPENMP
 # include <omp.h>
@@ -496,7 +497,7 @@ int main(int argc, char **argv) {
         break;
       case 'i':arg >> opt::ibits;
         break;
-      case 'r':arg >> opt::reuse_bf;
+      case 'r':opt::reuse_bf = true;
         break;
       case OPT_HELP:std::cerr << USAGE_MESSAGE;
         exit(EXIT_SUCCESS);
@@ -540,7 +541,30 @@ int main(int argc, char **argv) {
 
   const char *libName(argv[argc - 1]);
 
-  std::vector<std::vector<bool> > myFilters = loadFilter();
+  std::string bf_backup_name = "nhash_" + std::to_string(opt::nhash)
+      + "_ibits_" + std::to_string(opt::ibits) + "_bmersteps_" + std::to_string(opt::bmer_step)
+      + "_bmer_" + std::to_string(opt::bmer) + ".bf";
+
+  std::vector<std::vector<bool> > myFilters;
+
+  // check the file exists
+  std::ifstream bf_file(bf_backup_name.c_str());
+  if (bf_file.good()) {// load from file
+    std::cout << "Loading bloom filters from file" << std::endl;
+  } else {
+    bf_file.close();
+    myFilters = loadFilter();
+
+    // write to file
+    std::ofstream bf_out_file(bf_backup_name.c_str());
+    std::ostream_iterator<bool> output_iterator(bf_out_file);
+    for (const std::vector<bool> vec_:myFilters) {
+      bf_out_file << vec_.size();
+      std::copy(vec_.begin(), vec_.end(), output_iterator);
+    }
+    bf_out_file.close();
+  }
+
   dispatchRead(libName, myFilters);
 
 #ifdef _OPENMP
