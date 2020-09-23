@@ -72,7 +72,7 @@ static int fq;
 static bool reuse_bf;
 }
 
-static const char shortopts[] = "s:l:b:p:j:d:h:i:";
+static const char shortopts[] = "s:l:b:p:j:d:h:i:r";
 
 enum { OPT_HELP = 1, OPT_VERSION };
 
@@ -399,6 +399,71 @@ void dispatchRead(const char *libName, const std::vector<std::vector<bool> > &my
   imdFile.close();
 }
 
+void test_bf() {
+  // independent tests
+  /*std::vector<std::vector<bool> > testFilters(1);
+
+  std::string path = "/tmp/input.txt";
+
+  size_t filterSize = opt::ibits * getInfo(path.c_str(), opt::bmer);
+  testFilters[0].resize(filterSize);
+
+  std::ifstream uFile(path.c_str());
+  std::string pline, line;
+  getline(uFile, pline);
+  std::cout << "P line : " << pline << std::endl;
+  while (getline(uFile, pline)) {
+    if (pline[0] != '>') {
+      line += pline;
+    } else {
+      // ignore
+    }
+  }
+
+  std::cout << "processing line : " << line << std::endl;
+  std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+  long uL = line.length();
+  for (long j = 0; j < uL - opt::bmer + 1; ++j) {
+    std::string bMer = line.substr(j, opt::bmer);
+    getCanon(bMer);
+    std::cout << "inserting : " << bMer << std::endl;
+    filInsert(testFilters, 0, bMer);
+  }
+  line.clear();
+
+  uFile.close();
+
+  std::cout << "done inserting" << std::endl;
+
+  for (bool x: testFilters[0]) {
+    std::cout << x << ",";
+  }
+  std::cout << std::endl;
+
+  std::vector<std::string> needles = {
+      "gbch",
+      "bchn",
+      "chnf",
+      "hnfr",
+      "nfrk"
+  };
+  for (std::string str: needles) {
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    bool contains = filContain(testFilters, 0, str);
+    if (contains) {
+      std::cout << str << " : contains" << std::endl;
+    } else {
+      std::cout << str << " : not contains" << std::endl;
+    }
+  }
+
+
+  // end of tests
+
+  return 0;
+*/
+}
+
 int main(int argc, char **argv) {
   std::cerr << "change v1""\n";
 
@@ -474,69 +539,6 @@ int main(int argc, char **argv) {
 
   const char *libName(argv[argc - 1]);
 
-
-  // independent tests
-  /*std::vector<std::vector<bool> > testFilters(1);
-
-  std::string path = "/tmp/input.txt";
-
-  size_t filterSize = opt::ibits * getInfo(path.c_str(), opt::bmer);
-  testFilters[0].resize(filterSize);
-
-  std::ifstream uFile(path.c_str());
-  std::string pline, line;
-  getline(uFile, pline);
-  std::cout << "P line : " << pline << std::endl;
-  while (getline(uFile, pline)) {
-    if (pline[0] != '>') {
-      line += pline;
-    } else {
-      // ignore
-    }
-  }
-
-  std::cout << "processing line : " << line << std::endl;
-  std::transform(line.begin(), line.end(), line.begin(), ::toupper);
-  long uL = line.length();
-  for (long j = 0; j < uL - opt::bmer + 1; ++j) {
-    std::string bMer = line.substr(j, opt::bmer);
-    getCanon(bMer);
-    std::cout << "inserting : " << bMer << std::endl;
-    filInsert(testFilters, 0, bMer);
-  }
-  line.clear();
-
-  uFile.close();
-
-  std::cout << "done inserting" << std::endl;
-
-  for (bool x: testFilters[0]) {
-    std::cout << x << ",";
-  }
-  std::cout << std::endl;
-
-  std::vector<std::string> needles = {
-      "gbch",
-      "bchn",
-      "chnf",
-      "hnfr",
-      "nfrk"
-  };
-  for (std::string str: needles) {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-    bool contains = filContain(testFilters, 0, str);
-    if (contains) {
-      std::cout << str << " : contains" << std::endl;
-    } else {
-      std::cout << str << " : not contains" << std::endl;
-    }
-  }
-
-
-  // end of tests
-
-  return 0;
-*/
   std::vector<std::vector<bool> > myFilters = loadFilter();
   dispatchRead(libName, myFilters);
 
