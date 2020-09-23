@@ -69,7 +69,7 @@ static int se;
 static int fq;
 
 /** Make bloom filters reusable*/
-static bool reuse_bf;
+static int reuse_bf;
 }
 
 static const char shortopts[] = "s:l:b:p:j:d:h:i:r";
@@ -84,7 +84,7 @@ static const struct option longopts[] = {
     {"step", required_argument, NULL, 's'},
     {"hash", required_argument, NULL, 'h'},
     {"bit", required_argument, NULL, 'i'},
-    {"rebf", no_argument, NULL, 'r'},
+    {"rebf", no_argument, NULL, 0},
     {"se", no_argument, &opt::se, 1},
     {"fq", no_argument, &opt::fq, 1},
     {"help", no_argument, NULL, OPT_HELP},
