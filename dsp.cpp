@@ -466,6 +466,30 @@ void test_bf() {
 */
 }
 
+void binary_write(std::ofstream &fout, const std::vector<bool> &x) {
+  std::vector<bool>::size_type n = x.size();
+  fout.write((const char *) &n, sizeof(std::vector<bool>::size_type));
+  for (std::vector<bool>::size_type i = 0; i < n;) {
+    unsigned char aggr = 0;
+    for (unsigned char mask = 1; mask > 0 && i < n; ++i, mask <<= 1)
+      if (x.at(i))
+        aggr |= mask;
+    fout.write((const char *) &aggr, sizeof(unsigned char));
+  }
+}
+
+void binary_read(std::ifstream &fin, std::vector<bool> &x) {
+  std::vector<bool>::size_type n;
+  fin.read((char *) &n, sizeof(std::vector<bool>::size_type));
+  x.resize(n);
+  for (std::vector<bool>::size_type i = 0; i < n;) {
+    unsigned char aggr;
+    fin.read((char *) &aggr, sizeof(unsigned char));
+    for (unsigned char mask = 1; mask > 0 && i < n; ++i, mask <<= 1)
+      x.at(i) = aggr & mask;
+  }
+}
+
 int main(int argc, char **argv) {
   std::cerr << "change v1""\n";
 
@@ -556,13 +580,15 @@ int main(int argc, char **argv) {
     myFilters = loadFilter();
 
     // write to file
+    std::cout << "backing up bloom filters..." << std::endl;
     std::ofstream bf_out_file(bf_backup_name.c_str());
     std::ostream_iterator<bool> output_iterator(bf_out_file);
     for (const std::vector<bool> vec_:myFilters) {
       bf_out_file << vec_.size();
-      std::copy(vec_.begin(), vec_.end(), output_iterator);
+      binary_write(bf_out_file, vec_);
     }
     bf_out_file.close();
+    std::cout << "bloomfilter backed up..." << std::endl;
   }
 
   dispatchRead(libName, myFilters);
