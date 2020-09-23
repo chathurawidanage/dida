@@ -84,6 +84,7 @@ static const struct option longopts[] = {
     {"step", required_argument, NULL, 's'},
     {"hash", required_argument, NULL, 'h'},
     {"bit", required_argument, NULL, 'i'},
+    {"rebf", no_argument, NULL, 'r'},
     {"se", no_argument, &opt::se, 1},
     {"fq", no_argument, &opt::fq, 1},
     {"help", no_argument, NULL, OPT_HELP},
