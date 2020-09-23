@@ -67,6 +67,9 @@ static int se;
 
 /** fastq mode dispatch. */
 static int fq;
+
+/** Make bloom filters reusable*/
+static bool reuse_bf;
 }
 
 static const char shortopts[] = "s:l:b:p:j:d:h:i:";
@@ -427,6 +430,8 @@ int main(int argc, char **argv) {
         break;
       case 'i':arg >> opt::ibits;
         break;
+      case 'r':arg >> opt::reuse_bf;
+        break;
       case OPT_HELP:std::cerr << USAGE_MESSAGE;
         exit(EXIT_SUCCESS);
       case OPT_VERSION:std::cerr << VERSION_MESSAGE;
@@ -465,12 +470,13 @@ int main(int argc, char **argv) {
   std::cerr << "bmer-step=" << opt::bmer_step << "\n";
   std::cerr << "bmer=" << opt::bmer << "\n";
   std::cerr << "alen=" << opt::alen << "\n";
+  std::cerr << "reuse-bf=" << opt::reuse_bf << "\n";
 
   const char *libName(argv[argc - 1]);
-/*
+
 
   // independent tests
-  std::vector<std::vector<bool> > testFilters(1);
+  /*std::vector<std::vector<bool> > testFilters(1);
 
   std::string path = "/tmp/input.txt";
 
