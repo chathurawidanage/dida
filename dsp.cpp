@@ -569,12 +569,18 @@ int main(int argc, char **argv) {
       + "_ibits_" + std::to_string(opt::ibits) + "_bmersteps_" + std::to_string(opt::bmer_step)
       + "_bmer_" + std::to_string(opt::bmer) + ".bf";
 
-  std::vector<std::vector<bool> > myFilters;
+  std::vector<std::vector<bool> > myFilters(opt::pnum);
 
   // check the file exists
   std::ifstream bf_file(bf_backup_name.c_str());
   if (bf_file.good()) {// load from file
     std::cout << "Loading bloom filters from file" << std::endl;
+    std::ifstream bf_in_file(bf_backup_name.c_str());
+    for (std::vector<bool> vec_:myFilters) {
+      binary_read(bf_in_file, vec_);
+    }
+    bf_in_file.close();
+    std::cout << "loaded bloom filters..." << std::endl;
   } else {
     bf_file.close();
     myFilters = loadFilter();
@@ -582,15 +588,14 @@ int main(int argc, char **argv) {
     // write to file
     std::cout << "backing up bloom filters..." << std::endl;
     std::ofstream bf_out_file(bf_backup_name.c_str());
-    std::ostream_iterator<bool> output_iterator(bf_out_file);
     for (const std::vector<bool> vec_:myFilters) {
-      bf_out_file << vec_.size();
       binary_write(bf_out_file, vec_);
     }
     bf_out_file.close();
-    std::cout << "bloomfilter backed up..." << std::endl;
+    std::cout << "bloom filter backed up..." << std::endl;
   }
 
+  // move to sgx
   dispatchRead(libName, myFilters);
 
 #ifdef _OPENMP
