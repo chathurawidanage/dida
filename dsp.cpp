@@ -567,7 +567,9 @@ int main(int argc, char **argv) {
 
   std::string bf_backup_name = "nhash_" + std::to_string(opt::nhash)
       + "_ibits_" + std::to_string(opt::ibits) + "_bmersteps_" + std::to_string(opt::bmer_step)
-      + "_bmer_" + std::to_string(opt::bmer) + ".bf";
+      + "_bmer_" + std::to_string(opt::bmer)
+      + "_part_" + std::to_string(opt::pnum)
+      + ".bf";
 
   std::vector<std::vector<bool> > myFilters(opt::pnum);
 
