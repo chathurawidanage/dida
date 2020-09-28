@@ -78,10 +78,6 @@ static const char shortopts[] = "s:l:b:p:j:d:h:i:r";
 
 enum { OPT_HELP = 1, OPT_VERSION };
 
-void dida() {
-  std::cout << "Hello from dida" << std::endl;
-}
-
 static const struct option longopts[] = {
     {"threads", required_argument, NULL, 'j'},
     {"partition", required_argument, NULL, 'p'},
@@ -495,9 +491,7 @@ void binary_read(std::ifstream &fin, std::vector<bool> &x) {
   }
 }
 
-int main(int argc, char **argv) {
-  std::cerr << "change v1""\n";
-
+std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
 #ifdef _OPENMP
   double start = omp_get_wtime();
 #else
@@ -603,12 +597,17 @@ int main(int argc, char **argv) {
   }
 
   // move to sgx
-  dispatchRead(libName, myFilters);
+  //dispatchRead(libName, myFilters);
 
 #ifdef _OPENMP
   std::cerr << "Running time in sec: " << omp_get_wtime() - start << "\n";
 #else
   std::cerr << "Running time in sec: " << (double) (clock() - sTime) / CLOCKS_PER_SEC << "\n";
 #endif
-  return 0;
+  return myFilters;
+}
+
+
+void dida_do_dsp(std::string libName, std::vector<std::vector<bool>> bf){
+  dispatchRead(libName.c_str(), bf);
 }
