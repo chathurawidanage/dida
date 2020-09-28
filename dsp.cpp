@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <iterator>
 #include "Uncompress.h"
+#include "dsp.h"
 #ifdef _OPENMP
 # include <omp.h>
 #endif
@@ -76,6 +77,10 @@ static int reuse_bf;
 static const char shortopts[] = "s:l:b:p:j:d:h:i:r";
 
 enum { OPT_HELP = 1, OPT_VERSION };
+
+void dida() {
+  std::cout << "Hello from dida" << std::endl;
+}
 
 static const struct option longopts[] = {
     {"threads", required_argument, NULL, 'j'},
