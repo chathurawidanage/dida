@@ -117,7 +117,7 @@ if test $ac_cv_header_mpi_h != yes -o $ac_cv_lib_mpi_MPI_Init != yes; then
 	AC_MSG_ERROR([DIDA must be compiled with MPI support.])
 fi
 
-AC_SUBST(AM_CXXFLAGS, '-Wall -Wextra -Werror')
+AC_SUBST(AM_CXXFLAGS, '-Wall -Wextra')
 
 AC_SUBST(MPI_LIBS, "$LIBS")
 LIBS="$libs"
