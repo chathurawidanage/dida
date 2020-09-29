@@ -492,6 +492,8 @@ void binary_read(std::ifstream &fin, std::vector<bool> &x) {
 }
 
 std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
+  std::cout << "version v1" << std::endl;
+
 #ifdef _OPENMP
   double start = omp_get_wtime();
 #else
