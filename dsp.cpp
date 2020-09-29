@@ -585,6 +585,7 @@ std::vector<std::vector<bool> *> dida_build_bf(int argc, char **argv) {
       std::vector<bool> *vec_ = new std::vector<bool>();
       binary_read(bf_in_file, vec_);
       std::cout << "Loaded a vector of size " << vec_->size() << std::endl;
+      myFilters.push_back(vec_);
     }
     bf_in_file.close();
     std::cout << "loaded bloom filters..." << std::endl;
