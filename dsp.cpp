@@ -204,14 +204,14 @@ uint64_t MurmurHash64A(const void *key, int len, unsigned int seed) {
   return h;
 }
 
-void filInsert(std::vector<std::vector<bool> > &myFilters, const unsigned pn, const std::string &bMer) {
+void filInsert(std::vector<std::vector<bool> *> &myFilters, const unsigned pn, const std::string &bMer) {
   for (int i = 0; i < opt::nhash; ++i)
-    myFilters[pn][MurmurHash64A(bMer.c_str(), opt::bmer, i) % myFilters[pn].size()] = true;
+    (*myFilters[pn])[MurmurHash64A(bMer.c_str(), opt::bmer, i) % myFilters[pn]->size()] = true;
 }
 
-bool filContain(const std::vector<std::vector<bool> > &myFilters, const unsigned pn, const std::string &bMer) {
+bool filContain(const std::vector<std::vector<bool> *> &myFilters, const unsigned pn, const std::string &bMer) {
   for (int i = 0; i < opt::nhash; ++i)
-    if (!myFilters[pn][MurmurHash64A(bMer.c_str(), opt::bmer, i) % myFilters[pn].size()])
+    if (!(*myFilters[pn])[MurmurHash64A(bMer.c_str(), opt::bmer, i) % myFilters[pn]->size()])
       return false;
   return true;
 }
@@ -231,7 +231,7 @@ void getCanon(std::string &bMer) {
   }
 }
 
-std::vector<std::vector<bool> > loadFilter() {
+std::vector<std::vector<bool> *> loadFilter() {
 
 #ifdef _OPENMP
   double start = omp_get_wtime();
@@ -249,7 +249,7 @@ std::vector<std::vector<bool> > loadFilter() {
 
   int pIndex, chunk = 1;
   //begin create filters
-  std::vector<std::vector<bool> > myFilters(opt::pnum);
+  std::vector<std::vector<bool> *> myFilters(opt::pnum);
 
   std::cerr << "Loading filters ...\n";
 #pragma omp parallel for shared(myFilters) private(pIndex) schedule(static, chunk)
@@ -257,7 +257,8 @@ std::vector<std::vector<bool> > loadFilter() {
     std::stringstream sstm;
     sstm << "mref-" << pIndex + 1 << ".fa";
     size_t filterSize = opt::ibits * getInfo((sstm.str()).c_str(), opt::bmer);
-    myFilters[pIndex].resize(filterSize);
+    myFilters[pIndex] = new std::vector<bool>();
+    myFilters[pIndex]->resize(filterSize);
     std::ifstream uFile((sstm.str()).c_str());
 
     std::string pline, line;
@@ -297,7 +298,7 @@ std::vector<std::vector<bool> > loadFilter() {
   return myFilters;
 }
 
-void dispatchRead(const char *libName, const std::vector<std::vector<bool> > &myFilters) {
+void dispatchRead(const char *libName, const std::vector<std::vector<bool> *> &myFilters) {
   size_t buffSize = 4000000;
   std::ofstream rdFiles[opt::pnum];
   for (int i = 0; i < opt::pnum; ++i) {
@@ -467,31 +468,31 @@ void test_bf() {
 */
 }
 
-void binary_write(std::ofstream &fout, const std::vector<bool> &x) {
-  std::vector<bool>::size_type n = x.size();
+void binary_write(std::ofstream &fout, const std::vector<bool> *x) {
+  std::vector<bool>::size_type n = x->size();
   fout.write((const char *) &n, sizeof(std::vector<bool>::size_type));
   for (std::vector<bool>::size_type i = 0; i < n;) {
     unsigned char aggr = 0;
     for (unsigned char mask = 1; mask > 0 && i < n; ++i, mask <<= 1)
-      if (x.at(i))
+      if (x->at(i))
         aggr |= mask;
     fout.write((const char *) &aggr, sizeof(unsigned char));
   }
 }
 
-void binary_read(std::ifstream &fin, std::vector<bool> &x) {
+void binary_read(std::ifstream &fin, std::vector<bool> *x) {
   std::vector<bool>::size_type n;
   fin.read((char *) &n, sizeof(std::vector<bool>::size_type));
-  x.resize(n);
+  x->resize(n);
   for (std::vector<bool>::size_type i = 0; i < n;) {
     unsigned char aggr;
     fin.read((char *) &aggr, sizeof(unsigned char));
     for (unsigned char mask = 1; mask > 0 && i < n; ++i, mask <<= 1)
-      x.at(i) = aggr & mask;
+      x->at(i) = aggr & mask;
   }
 }
 
-std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
+std::vector<std::vector<bool> *> dida_build_bf(int argc, char **argv) {
   std::cout << "version v1" << std::endl;
 
 #ifdef _OPENMP
@@ -572,7 +573,7 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
       + "_part_" + std::to_string(opt::pnum)
       + ".bf";
 
-  std::vector<std::vector<bool> > myFilters(opt::pnum);
+  std::vector<std::vector<bool> *> myFilters(opt::pnum);
 
   // check the file exists
   std::ifstream bf_file(bf_backup_name.c_str());
@@ -581,9 +582,9 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
     std::ifstream bf_in_file(bf_backup_name.c_str());
     std::cout << "Created if stream. P num : " << opt::pnum << std::endl;
     for (int x = 0; x < opt::pnum; x++) {
-      std::vector<bool> vec_;
+      std::vector<bool> *vec_ = new std::vector<bool>();
       binary_read(bf_in_file, vec_);
-      std::cout << "Loaded a vector of size " << vec_.size() << std::endl;
+      std::cout << "Loaded a vector of size " << vec_->size() << std::endl;
     }
     bf_in_file.close();
     std::cout << "loaded bloom filters..." << std::endl;
@@ -594,7 +595,7 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
     // write to file
     std::cout << "backing up bloom filters..." << std::endl;
     std::ofstream bf_out_file(bf_backup_name.c_str());
-    for (const std::vector<bool> vec_:myFilters) {
+    for (const std::vector<bool> *vec_:myFilters) {
       binary_write(bf_out_file, vec_);
     }
     bf_out_file.close();
@@ -609,9 +610,12 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
 #else
   std::cerr << "Running time in sec: " << (double) (clock() - sTime) / CLOCKS_PER_SEC << "\n";
 #endif
+
+  std::cout << "Returning vectors of size : " << myFilters.size() << std::endl;
+
   return myFilters;
 }
 
-void dida_do_dsp(std::string libName, std::vector<std::vector<bool>> bf) {
+void dida_do_dsp(std::string libName, std::vector<std::vector<bool> *> bf) {
   dispatchRead(libName.c_str(), bf);
 }
