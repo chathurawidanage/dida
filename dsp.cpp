@@ -577,6 +577,7 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
   if (bf_file.good()) {// load from file
     std::cout << "Loading bloom filters from file" << std::endl;
     std::ifstream bf_in_file(bf_backup_name.c_str());
+    std::cout << "Created if stream. P num : " << opt::pnum << std::endl;
     for (int x = 0; x < opt::pnum; x++) {
       std::vector<bool> vec_;
       binary_read(bf_in_file, vec_);
