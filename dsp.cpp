@@ -577,8 +577,10 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
   if (bf_file.good()) {// load from file
     std::cout << "Loading bloom filters from file" << std::endl;
     std::ifstream bf_in_file(bf_backup_name.c_str());
-    for (std::vector<bool> vec_:myFilters) {
+    for (int x = 0; x < opt::pnum; x++) {
+      std::vector<bool> vec_;
       binary_read(bf_in_file, vec_);
+      std::cout << "Loaded a vector of size " << vec_.size() << std::endl;
     }
     bf_in_file.close();
     std::cout << "loaded bloom filters..." << std::endl;
@@ -607,7 +609,6 @@ std::vector<std::vector<bool>> dida_build_bf(int argc, char **argv) {
   return myFilters;
 }
 
-
-void dida_do_dsp(std::string libName, std::vector<std::vector<bool>> bf){
+void dida_do_dsp(std::string libName, std::vector<std::vector<bool>> bf) {
   dispatchRead(libName.c_str(), bf);
 }
