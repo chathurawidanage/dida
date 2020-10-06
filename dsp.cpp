@@ -577,7 +577,7 @@ std::vector<std::vector<bool> *> dida_build_bf(int argc, char **argv) {
 
   // check the file exists
   std::ifstream bf_file(bf_backup_name.c_str());
-  if (bf_file.good()) {// load from file
+  if (bf_file.good() && opt::reuse_bf) {// load from file
     std::cout << "Loading bloom filters from file" << std::endl;
     std::ifstream bf_in_file(bf_backup_name.c_str());
     std::cout << "Created if stream. P num : " << opt::pnum << std::endl;
