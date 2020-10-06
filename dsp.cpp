@@ -593,14 +593,16 @@ std::vector<std::vector<bool> *> dida_build_bf(int argc, char **argv) {
     bf_file.close();
     myFilters = loadFilter();
 
-    // write to file
-    std::cout << "backing up bloom filters..." << std::endl;
-    std::ofstream bf_out_file(bf_backup_name.c_str());
-    for (const std::vector<bool> *vec_:myFilters) {
-      binary_write(bf_out_file, vec_);
+    if(opt::reuse_bf){
+      // write to file
+      std::cout << "backing up bloom filters..." << std::endl;
+      std::ofstream bf_out_file(bf_backup_name.c_str());
+      for (const std::vector<bool> *vec_:myFilters) {
+        binary_write(bf_out_file, vec_);
+      }
+      bf_out_file.close();
+      std::cout << "bloom filter backed up..." << std::endl;
     }
-    bf_out_file.close();
-    std::cout << "bloom filter backed up..." << std::endl;
   }
 
   // move to sgx
